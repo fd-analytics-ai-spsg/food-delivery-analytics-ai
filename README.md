@@ -1,4 +1,3 @@
-# food-delivery-analytics-ai
 # FD Analytics & AI Capstone
 
 End-to-end data pipeline, BigQuery warehouse (`fd_raw`, `fd_staging`, `fd_marts`, `fd_ai`), and Vertex AI (Gemini) analytics platform built on Google Cloud (`asia-south1`).
