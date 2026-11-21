@@ -1,0 +1,17 @@
+# Environment variables & secrets
+.env
+.env.*
+*.env
+
+# Service account keys & credentials
+*key*.json
+*credentials*.json
+service-account*.json
+*.pem
+
+# Raw & local datasets
+data/
+*.csv
+*.parquet
+*.xlsx
+*.db
