@@ -1,10 +1,10 @@
 # Metric definitions
 
-**Status:** draft for the Nov 23 check-in, checked against the video's code. Rows marked **Decision** need the team's OK; the recommended option is filled in.
+**Status:** agreed on Nov 23, 2026 (Suchita, dbt owner). Any later change goes through a pull request.
 
 **Why this file exists:** the dashboard, the Ask view (Text-to-SQL), the tests and the slides must all calculate each number the same way.
 
-**Source:** the dataset comes from Darshil Parmar's "Zomato AI Data Analytics" project ([video](https://www.youtube.com/watch?v=kYwaNMQ3XT8), [code](https://github.com/darshilparmar/zomato-ai-data-engineering-end-to-end-project)). 
+**Source:** the dataset comes from Darshil Parmar's "Zomato AI Data Analytics" project ([video](https://www.youtube.com/watch?v=kYwaNMQ3XT8), [code](https://github.com/darshilparmar/zomato-ai-data-engineering-end-to-end-project)).
 
 > All results come from simulated data. Label them that way in the dashboard and slides.
 
@@ -14,8 +14,8 @@
 
 - **Currency:** every amount is in Indian rupees (₹, INR). After the load, check that no order uses another currency.
 - **Time zone:** `order_datetime` is local India time (IST) and is never converted. Order times fall between about 7 am and 11 pm, which fits local time.
-- **Which date:** order metrics use `order_date`; review metrics use `review_date`. The orders run from 2024 to 2026; the video's calendar table covers 2024-01-01 to 2026-12-31.
-- **Order status** (lowercase after cleaning): `delivered`, `cancelled`, `refunded`. The video's tests allow exactly these 3 values.
+- **Which date:** order metrics use `order_date`; review metrics use `review_date`. The orders run from 2024 to 2026.
+- **Order status** (lowercase after cleaning): `delivered`, `cancelled`, `refunded`. Only these 3 are expected; confirm after the load.
 - **Completed order** = `order_status = 'delivered'`.
   - Cancelled and refunded orders still have amounts in the data, so **every money metric must filter on status**.
   - Cancelled and refunded orders have no delivery time and no customer rating.
@@ -42,12 +42,12 @@ Checked on the first rows of `orders.csv` and `order_items.csv`; confirm on the 
 |---|---|---|---|
 | Orders | Orders placed | `COUNT(order_id)` | All |
 | Delivered orders | Orders that reached the customer | `COUNTIF(order_status = 'delivered')` | All |
-| **GMV** | Money customers paid for delivered orders: after discounts, including delivery fee and GST *(same as the video)* | `SUM(sales_amount)` | Delivered |
+| **GMV** | Money customers paid for delivered orders: after discounts, including delivery fee and GST | `SUM(sales_amount)` | Delivered |
 | Net food sales | Food value after discounts, without delivery fee and GST | `SUM(subtotal - discount)` | Delivered |
-| **AOV** (average order value) | Average amount paid per delivered order *(same as the video)* | `SUM(sales_amount) / COUNT(order_id)` | Delivered |
+| **AOV** (average order value) | Average amount paid per delivered order | `SUM(sales_amount) / COUNT(order_id)` | Delivered |
 | Items sold | Units sold | `SUM(sales_qty)` | Delivered |
 | Discount rate | Share of food value given as discount | `SUM(discount) / SUM(subtotal)` | Delivered |
-| **Cancellation rate** | Share of orders cancelled *(same as the video)* | `COUNTIF(order_status = 'cancelled') / COUNT(*)` | All |
+| **Cancellation rate** | Share of orders cancelled | `COUNTIF(order_status = 'cancelled') / COUNT(*)` | All |
 | Refund rate | Share of orders refunded | `COUNTIF(order_status = 'refunded') / COUNT(*)` | All |
 | **Delivery time** (median and 90th percentile) | Typical and slow delivery times, in minutes | `APPROX_QUANTILES(delivery_time_min, 100)[OFFSET(50)]` and `[OFFSET(90)]` | Delivered |
 | **On-time rate** | Share of deliveries within the SLA (45 min) | `COUNTIF(delivery_time_min <= 45) / COUNT(delivery_time_min)` | Delivered |
@@ -67,7 +67,7 @@ Checked on the first rows of `orders.csv` and `order_items.csv`; confirm on the 
 | Topic share | Share of reviews per topic | count per topic ÷ tagged reviews | Tagged |
 | Rating label (for the NLP model) | Turns stars into a sentiment label | 1–2 = negative, 3 = neutral, 4–5 = positive | All |
 
-**Topic list** (Phil's, approved at the check-in). A good starting point is the video's list: food quality, delivery, pricing, service, packaging, other.
+**Topic list** (Phil's, approved at the check-in). A good starting point: food quality, delivery, pricing, service, packaging, other.
 
 Some reviews have no text. They still count in the average review rating, but Gemini tagging, embeddings and the NLP model skip them.
 
@@ -99,20 +99,20 @@ Some reviews have no text. They still count in the average review rating, but Ge
 >
 > This matters for the dashboard and for Phil's Text-to-SQL prompt.
 
-## 7. Decisions for the check-in
+## 7. Decisions made
 
-| # | Decision | Recommended | Why |
+| # | Question | Decision | Why |
 |---|---|---|---|
-| 1 | Does GMV include the delivery fee and GST? | **Yes:** GMV = `SUM(sales_amount)` | It's what customers actually paid, and the video's project defines it the same way. Net food sales is also available if someone wants food value only. |
-| 2 | How do refunded orders count? | **Not completed:** left out of GMV, AOV and delivery metrics, and shown as a refund rate | The money was returned. The video also counts only delivered orders in GMV. |
-| 3 | What is the cancellation rate divided by? | **All orders** | Simple, standard, and the same as the video |
+| 1 | Does GMV include the delivery fee and GST? | **Yes:** GMV = `SUM(sales_amount)` | It's what customers actually paid. Net food sales is also available if someone wants food value only. |
+| 2 | How do refunded orders count? | **Not completed:** left out of GMV, AOV and delivery metrics, and shown as a refund rate | The money was returned |
+| 3 | What is the cancellation rate divided by? | **All orders** | Simple and standard |
 | 4 | SLA minutes | **45** | In the first 36 delivered orders, 86% arrived within 45 min but only 47% within 30. It matches Gouri's original buckets: fast < 25, normal 25–45, late > 45. |
 | 5 | Cohorts are based on | **The first delivered order** | Consistent with "completed order" |
 | 6 | Time zone | **India time, no conversion** | See the ground rules |
 
 ## 8. Checks to run after the load (they confirm the rules above)
 
-- [ ] Row counts match the video's numbers: orders = 10,000,000, order items ≈ 23 million, reviews = 300,000, restaurants ≈ 148,541
+- [ ] Row counts are as expected: orders = 10,000,000, order items ≈ 23 million, reviews = 300,000, restaurants ≈ 148,541
 - [ ] Orders with a currency other than INR = 0
 - [ ] `sales_amount = subtotal - discount + delivery_fee + gst` on every order
 - [ ] Full list of `order_status` values, and delivery time is empty only for cancelled and refunded orders
