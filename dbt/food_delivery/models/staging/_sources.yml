@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: fd_raw
+    schema: fd_raw
+    tables:
+      - name: users
+      - name: restaurants
+      - name: food
+      - name: menu
+      - name: orders
+      - name: order_items
+      - name: reviews
