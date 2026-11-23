@@ -25,7 +25,7 @@ CREATE TABLE fd_raw.menu (
   price      STRING
 );
 
--- restaurant.csv (has the blank first column; the table name is plural to match the sources file)
+-- restaurant.csv (has the blank first column; the table name is plural - restaurants to match the sources file)
 CREATE TABLE fd_raw.restaurants (
   row_index     STRING,
   id            STRING,
@@ -57,7 +57,8 @@ CREATE TABLE fd_raw.reviews (
 CREATE TABLE fd_raw.orders (
   -- row_index STRING,
   order_id           STRING,
-  order_time         STRING,
+  order_timestamp    STRING,
+  order_date         STRING,
   user_id            STRING,
   r_id               STRING,
   restaurant_city    STRING,
