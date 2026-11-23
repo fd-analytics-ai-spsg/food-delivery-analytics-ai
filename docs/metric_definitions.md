@@ -4,7 +4,7 @@
 
 **Why this file exists:** the dashboard, the Ask view (Text-to-SQL), the tests and the slides must all calculate each number the same way.
 
-**Source:** the dataset comes from Darshil Parmar's "Zomato AI Data Analytics" project ([video](https://www.youtube.com/watch?v=kYwaNMQ3XT8), [code](https://github.com/darshilparmar/zomato-ai-data-engineering-end-to-end-project)). Where our definition is the same as that project's, it says *(same as the video)*.
+**Source:** the dataset comes from Darshil Parmar's "Zomato AI Data Analytics" project ([video](https://www.youtube.com/watch?v=kYwaNMQ3XT8), [code](https://github.com/darshilparmar/zomato-ai-data-engineering-end-to-end-project)). 
 
 > All results come from simulated data. Label them that way in the dashboard and slides.
 
