@@ -8,10 +8,24 @@
 *credentials*.json
 service-account*.json
 *.pem
+keys/
 
 # Raw & local datasets
-data/
 *.csv
+*.csv.gz
 *.parquet
 *.xlsx
 *.db
+!dbt/**/seeds/*.csv
+data/
+out/
+
+# Python & Notebooks
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# dbt Build Files
+target/
+dbt_packages/
+logs/
